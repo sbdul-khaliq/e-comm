@@ -3,7 +3,6 @@ const cors = require('cors');
 require('./db/config');
 const User = require('./db/user');
 const app = express();
-console.log('hello ak..');
 
 app.use(cors());  // Add this line to enable CORS
 app.use(express.json());
