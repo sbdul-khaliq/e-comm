@@ -36,6 +36,69 @@ app.post('/add-product', async (req, resp) => {
         resp.send(result);
 });
 
+app.get('/products',async (req,resp)=>{
+   let product = await Product.find();
+   if(product.length > 0){
+    resp.send(product);
+   }else{
+    esp.send("products : not found");
+   }
+})
+
+app.delete('/prodcut/:id',async(req,resp)=>{
+    const result = await Product.deleteOne({_id:req.params.id})
+    resp.send(result);
+})
+
+
+
+app.get("/updateproduct/:id", async (req, resp) => {
+    // Assuming `id` is the MongoDB ObjectId; adjust query as needed
+    const product = await Product.findById(req.params.id);
+  
+    if (product) {
+        resp.json(product);
+    } else {
+        resp.status(404).json({ message: "No Record Found." });
+    }
+  });
+  
+
+  app.put('/updateproduct/:id', async (req, resp) => {
+    try {
+        const { id } = req.params;
+        const updateData = req.body; // The data to update the product
+
+        // Find and update the product by its ID
+        const product = await Product.findByIdAndUpdate(id, updateData, { new: true });
+
+        if (product) {
+            resp.json(product);
+        } else {
+            resp.status(404).json({ message: 'No Record Found.' });
+        }
+    } catch (error) {
+        resp.status(500).json({ message: 'Server Error', error: error.message });
+    }
+});
+
+
+app.get("/search/:key", async (req, resp) => {
+    const searchKey = req.params.key;
+
+    let result = await Product.find({
+        "$or": [
+            { name: { $regex: searchKey, $options: 'i' } },
+            { company: { $regex: searchKey, $options: 'i' } },
+            { category: { $regex: searchKey, $options: 'i' } },
+            { price: { $regex: searchKey, $options: 'i' } }
+        ]
+    });
+
+    resp.send(result);
+});
+
+
 
 app.listen(5000, () => {
     console.log('Server is running on port 5000');
